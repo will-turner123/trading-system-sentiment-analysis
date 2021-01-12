@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<head>
+    <title>Pfizer/Moderna Models</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+    <script src="https://d3js.org/d3-time-format.v3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <style>
+        /* Color Scheme:
+        BG: #141B2D or #0C111F
+        SECONDARY: #1F2940 or #121729
+        Secondary Text: #4d8af0
+
+        Chart Secondary: #FF5F66
+        Chart Primary: #2D92FE
+        */
+    body{
+        background-color: #0C111F;
+        font-family: Helvetica;
+        color: white;
+    }
+    .dark-card{
+        background-color: #121729;
+        color: white;
+        box-shadow: 0 0 10px 0 rgba(4,2,2,.2);
+        border: 1px solid #141924;
+    }
+    .nav-tabs{
+        border-bottom: 1px solid #121729;
+    }
+    .nav-link.active{
+        color:#4d8af0 !important;
+        background-color: #121729 !important;
+        border-color: #121729 !important;
+    }
+    .nav-link{
+        color: white;
+    }
+    .nav-link:hover{
+        border-color: #121729 !important;
+    }
+    .table-dark{
+    background-color: #121729;
+    border-color: #0C111F;
+    }
+    .table-dark td, th{
+        border-color: #0C111F !important;
+    }
+    </style>
+    <div class='container-fluid'>
+        <!-- TODO: add in second tab with Moderna -->
+        <div class="row no-gutters">
+            <div class="col">
+                <ul class="nav nav-tabs tab-list mt-4">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="pfizer-tab" data-bs-toggle="tab" href="#pfizer" role="tab" aria-controls="pfizer" aria-selected="true">Pfizer</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="moderna-tab" data-bs-toggle="tab" href="#moderna" role="tab" aria-controls="moderna" aria-selected="false" onclick="setTimeout(do_moderna_plots, 200)">Moderna</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="models-tab" data-bs-toggle="tab" href="#models" role="tab" aria-controls="models" aria-selected="false">Models</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/trade">Trading</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- PFIZER TAB -->
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="pfizer" role="tabpanel" aria-labelledby="pfizer-tab">
+                <!-- stock prices -->
+                <div class="row no-gutters">
+                    <div class="col">
+                        <div class="card dark-card" style="border-top: none;">
+                            <div class="card-body text-center">
+                                <div id="graph-0">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- News Quantity Bar Graph -->
+                <div class="row no-gutters align-items-center mt-5">
+                    <div class="col-6 md-3 pr-3">
+                        <div class="card dark-card">
+                            <div class="card-body text-center">
+                                <div id="graph-1">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Sentiment Over Time -->
+                    <div class="col-6 md-3 pl-3">
+                        <div class="card dark-card">
+                            <div class="card-body text-center">
+                                <div id="graph-2">
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Linear Regression -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card dark-card mt-5">
+                            <div class="card-body text-center">
+                                <div id="pfizer_linear_wrapper">
+                                    <script>
+                                        var pfizer_x = {{pfizer_linear_x | safe}}
+                                        // for (i = 0; i < pfizer_x.length; i++){
+                                        //     pfizer_x[i] = d
+                                        //     console.log(d)
+                                        // }
+                                        // console.log(pfizer_x)
+                                        var trace3 = {
+                                            x: pfizer_x,
+                                            y: {{pfizer_linear_y1 | safe}},
+                                            type: 'scatter',
+                                            name: 'Actual Results',
+                                            line: {color: "#2D92FE", width: 1.5}
+                                            // line=dict(color=plot_primary, width=1),
+                                        }
+                                        var trace4 = {
+                                            x: pfizer_x,
+                                            y: {{pfizer_linear_y2 | safe}},
+                                            name: 'Predicted Results',
+                                            line: {color: "#FF5F66", width: 1.5}
+                                        }
+                                        var layout = {title: 'Pfizer Linear Regression',
+                                            paper_bgcolor: "#121729",
+                                            plot_bgcolor: "#121729",
+                                            font: {color: "#FFFFFF"},
+                                            xaxis: {
+                                                tickformat: '%b%d, %Y'
+                                            }
+                                    };
+                                        var data = [trace3, trace4]
+                                        Plotly.newPlot('pfizer_linear_wrapper', data, layout)
+                                    </script>
+                                </div>
+                                <p>This graph shows a linear regression model using the sentiment of news articles and open prices to predict close prices. It shows both the predicted and actual results</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODERNA TAB -->
+            <div class="tab-pane fade" id="moderna" role="tabpanel" aria-labelledby="moderna-tab" >
+                <div class="row no-gutters">
+                    <div class="col">
+                        <div class="card dark-card" style="border-top: none;">
+                            <div class="card-body text-center" style="width:100%;">
+                                <!-- TODO: Remove style make class-->
+                                <div id="moderna_stock" class="text-center" style="min-width:100%;width:100% !important;">
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- News Quantity Bar Graph -->
+                <div class="row no-gutters align-items-center mt-5">
+                    <div class="col-6 md-3 pr-3">
+                        <div class="card dark-card">
+                            <div class="card-body text-center">
+                                <div id="moderna_news">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Sentiment Over Time -->
+                    <div class="col-6 md-3 pl-3">
+                        <div class="card dark-card">
+                            <div class="card-body text-center">
+                                <div id="moderna_sentiment">
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Linear Regression -->
+                <div class="row">
+                    <div class="col">
+                        <div class="card dark-card mt-5">
+                            <div class="card-body text-center">
+                                <div id="moderna_linear_wrapper">
+
+                                </div>
+                                <p>This graph shows a linear regression model using the sentiment of news articles and open prices to predict close prices. It shows both the predicted and actual results</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="models" role="tabpanel" aria-labelledby="model-tab">
+                <div class="row no-gutters">
+                    <div class="col">
+                        <div class="card dark-card">
+                            <h4 class="text-center mt-2">Linear Regression Models</h4>
+                            <table class="table table-dark">
+                                <thead>
+                                    <th scope="col">Symbol</th>
+                                    <th scope="col">MSE</th>
+                                    <th scope="col">R2</th>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Pfizer</td>
+                                        <td>{{pfizer_mse|safe}}</td>
+                                        <td>{{pfizer_r2|safe}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Moderna</td>
+                                        <td>{{moderna_mse|safe}}</td>
+                                        <td>{{moderna_r2|safe}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <script type="text/javascript">
+
+        var graphs = {{graphJSON | safe}};
+        var ids = {{ids | safe}};
+
+        for(var i in graphs) {
+            Plotly.plot(ids[i], // the ID of the div, created above
+                        graphs[i].data,
+                        graphs[i].layout || {});
+        }
+
+    </script>
+        <script type="text/javascript">
+            // MODERNA STOCK GRAPH
+            var moderna_stock_x = {{moderna_stock_x | safe}}
+            var moderna_stock_y = {{moderna_stock_y | safe}}
+
+            var moderna_stock_trace = {
+                x: moderna_stock_x,
+                y: moderna_stock_y,
+                type: 'scatter'
+            }
+            var moderna_stock_layout = {
+                title: 'Moderna Stock Price',
+                paper_bgcolor: "#121729",
+                plot_bgcolor: "#121729",
+                font: {color: "#FFFFFF"},
+            }
+            function plot_moderna_stock(){
+                Plotly.newPlot('moderna_stock', [moderna_stock_trace], moderna_stock_layout)
+            }
+            // Moderna Sentiment Over Time Graph
+            var moderna_sentiment_x = {{moderna_sentiment_x | safe}}
+            var moderna_sentiment_y = {{moderna_sentiment_y | safe}}
+            var moderna_sentiment_trace = {
+                x: moderna_sentiment_x,
+                y: moderna_sentiment_y,
+                type: 'scatter'
+            }
+            var moderna_sentiment_layout = {
+                title: 'Sentiment Over Time',
+                paper_bgcolor: "#121729",
+                plot_bgcolor: "#121729",
+                font: {color: "#FFFFFF"},
+            }
+            function plot_moderna_sentiment(){
+                Plotly.newPlot('moderna_sentiment', [moderna_sentiment_trace], moderna_sentiment_layout)
+            }
+            // MODERNA MONTHLY NEWS 
+            var moderna_news_x = {{moderna_news_x | safe}}
+            var moderna_news_y = {{moderna_news_y | safe}}
+            var moderna_news_trace = {
+                x: moderna_news_x,
+                y: moderna_news_y,
+                type: 'bar'
+            }
+            var moderna_news_layout = {
+                title: 'News Per Month',
+                paper_bgcolor: "#121729",
+                plot_bgcolor: "#121729",
+                font: {color: "#FFFFFF"},
+            }
+            function plot_moderna_news(){
+                Plotly.newPlot('moderna_news', [moderna_news_trace], moderna_news_layout)
+            }           
+            // MODERNA LINEAR REGRESSION GRAPH
+            var moderna_x = {{moderna_linear_x | safe}}
+            // y1 = c
+            var trace3 = {
+                x: moderna_x,
+                y: {{moderna_linear_y1 | safe}},
+                type: 'scatter',
+                name: 'Actual Results',
+                line: {color: "#2D92FE", width: 1.5}
+            }
+            // y2 = Predicted Results
+            var trace4 = {
+                x: moderna_x,
+                y: {{moderna_linear_y2 | safe}},
+                name: "Predicted Results",
+                line: {color: "#FF5F66", width: 1.5}
+            }
+            var moderna_linear_layout = {title: 'Moderna Linear Regression',
+            paper_bgcolor: "#121729",
+            plot_bgcolor: "#121729",
+            font: {color: "#FFFFFF"},
+            xaxis: {
+                tickformat: '%b%d, %Y'
+            }};
+            var moderna_linear_data = [trace3, trace4]
+            function plot_moderna_linear(){
+                Plotly.newPlot('moderna_linear_wrapper', moderna_linear_data, moderna_linear_layout)
+            }
+
+            function do_moderna_plots(){
+                plot_moderna_linear();
+                plot_moderna_stock();
+                plot_moderna_sentiment();
+                plot_moderna_news();
+            }
+        </script>
+</body>
