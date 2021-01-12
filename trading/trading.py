@@ -11,6 +11,8 @@ import time
 from model import train_model, make_predictions
 import warnings
 import json
+import dotenv
+import os
 
 # TODO: Sell all shares of security in sell function
 # Make it so it doesn't loop orders
@@ -19,8 +21,9 @@ warnings.filterwarnings('ignore')
 
 analyzer = SentimentIntensityAnalyzer()
 
-key_id = "PKF0OWCNN3UCX2LSBR78"
-secret_key = "G8QkmBXCXharATCugZeovzgKyUbPoPVp2cd2ken6"
+key_id = os.getenv("alpaca_key")
+secret_key = os.getenv("alpaca_secret_key")
+
 api = tradeapi.REST(
     base_url = 'https://paper-api.alpaca.markets',
     key_id = key_id,
@@ -29,7 +32,7 @@ api = tradeapi.REST(
 
 # returns sentiment of news
 def get_news(company, from_date):
-    news_key = "5e3ba89b67f849e6bab8e1ec1f9d8d8e"
+    news_key = os.getenv("news_api")
     company_news = requests.get(f"http://newsapi.org/v2/everything?q={company}&from={from_date}&to={from_date}&language=en&sortBy=publishedAt&apiKey={news_key}").json()
     company_news = pd.DataFrame(data=company_news)
     company_df = pd.DataFrame.from_dict(company_news["articles"])

@@ -16,11 +16,14 @@ import alpaca_trade_api as tradeapi
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import requests
+import dotenv
+import os
+
 
 app = Flask(__name__)
 
-key_id = "PKF0OWCNN3UCX2LSBR78"
-secret_key = "G8QkmBXCXharATCugZeovzgKyUbPoPVp2cd2ken6"
+key_id = os.getenv("alpaca_key")
+secret_key = os.getenv("alpaca_secret_key")
 
 # get most recent stock data
 def get_stock_data(symbol):
@@ -81,7 +84,7 @@ def up_or_down(value):
 def get_news(from_date):
     # modified get news function which returns dataframe with title, 
     analyzer = SentimentIntensityAnalyzer()
-    news_key = "5e3ba89b67f849e6bab8e1ec1f9d8d8e"
+    news_key = os.getenv("news_api")
     company_news = requests.get(f"http://newsapi.org/v2/everything?q=(pfizer)OR(moderna)&from={from_date}&to={from_date}&language=en&sortBy=publishedAt&apiKey={news_key}").json()
     company_news = pd.DataFrame(data=company_news)
     company_df = pd.DataFrame.from_dict(company_news["articles"])
