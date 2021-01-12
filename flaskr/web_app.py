@@ -30,19 +30,19 @@ def get_stock_data(symbol):
     return stock_data
 
 def return_sentiment_by_month(company):
-    sentiment_df = pd.read_csv(f'data/{company}_sentiment_analysis.csv', index_col='date', infer_datetime_format=True, parse_dates=True)
+    sentiment_df = pd.read_csv(f'../data/{company}_sentiment_analysis.csv', index_col='date', infer_datetime_format=True, parse_dates=True)
     sentiment_df = sentiment_df.drop(['positive','negative','neutral'], axis=1)
     sentiment_df = sentiment_df.resample('M').mean()
     return sentiment_df
 
 def return_news_by_month(company):
-    news_df = pd.read_csv(f'data/{company}_year.csv', index_col='date', infer_datetime_format=True, parse_dates=True)
+    news_df = pd.read_csv(f'../data/{company}_year.csv', index_col='date', infer_datetime_format=True, parse_dates=True)
     news_df = news_df.groupby(news_df.index.month).count()
     return news_df
 
 # linear regression function
 def return_linear_regression(symbol):
-    file_path = f'data/{symbol}_sentiment_analysis.csv'
+    file_path = f'../data/{symbol}_sentiment_analysis.csv'
     df = pd.read_csv(file_path, parse_dates=True, infer_datetime_format=True, index_col='date')
     df = df.resample('D').mean()
 
