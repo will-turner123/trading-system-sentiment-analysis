@@ -13,6 +13,7 @@ import warnings
 import json
 import dotenv
 import os
+from dotenv import load_dotenv
 
 # TODO: Sell all shares of security in sell function
 # Make it so it doesn't loop orders
@@ -21,8 +22,10 @@ warnings.filterwarnings('ignore')
 
 analyzer = SentimentIntensityAnalyzer()
 
-key_id = os.getenv("alpaca_key")
-secret_key = os.getenv("alpaca_secret_key")
+#key_id = os.getenv("alpaca_key")
+#secret_key = os.getenv("alpaca_secret_key")
+key_id = "PKF0OWCNN3UCX2LSBR78"
+secret_key = "G8QkmBXCXharATCugZeovzgKyUbPoPVp2cd2ken6"
 
 api = tradeapi.REST(
     base_url = 'https://paper-api.alpaca.markets',
@@ -32,7 +35,8 @@ api = tradeapi.REST(
 
 # returns sentiment of news
 def get_news(company, from_date):
-    news_key = os.getenv("news_api")
+    #news_key = os.getenv("news_api")
+    news_key = "ad9b31ff022242e9932a6a643dd3897b"
     company_news = requests.get(f"http://newsapi.org/v2/everything?q={company}&from={from_date}&to={from_date}&language=en&sortBy=publishedAt&apiKey={news_key}").json()
     company_news = pd.DataFrame(data=company_news)
     company_df = pd.DataFrame.from_dict(company_news["articles"])
@@ -82,11 +86,13 @@ def get_models(companies):
 
 # passes yesterdays news and stock price as test data to make_predictions() to generate signal
 def generate_signal(news, bars, model):
-    bars = bars.dropna()
+   # bars = bars.dropna()
     bars.columns = ['t', 'o', 'h', 'l', 'c', 'v']
     # encodes close as price either going up or down
+    bars['c'] = bars['c'].pct_change()
     bars["c"][bars["c"] < 0] = 0
     bars["c"][bars["c"] > 0] = 1
+    bars = bars.dropna()
 
     # get mean of all news articles for the day
     news.set_index('date', inplace=True)
@@ -105,6 +111,7 @@ def generate_signal(news, bars, model):
     df = pd.concat([news,bars], axis=1)
     df = df.dropna()
     df = df.drop(['c'], axis=1)
+    print(df)
     predictions = make_predictions(model, df)
     print(predictions)
     return predictions

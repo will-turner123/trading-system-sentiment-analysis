@@ -16,14 +16,22 @@ import alpaca_trade_api as tradeapi
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import requests
-import dotenv
 import os
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 
 app = Flask(__name__)
 
-key_id = os.getenv("alpaca_key")
-secret_key = os.getenv("alpaca_secret_key")
+long_path = "/var/www/FlaskApp/"
+
+nltk.download('vader_lexicon')
+
+#key_id = os.getenv("alpaca_key")
+#secret_key = os.getenv("alpaca_secret_key")
+key_id = "PKF0OWCNN3UCX2LSBR78"
+secret_key = "G8QkmBXCXharATCugZeovzgKyUbPoPVp2cd2ken6"
 
 # get most recent stock data
 def get_stock_data(symbol):
@@ -33,23 +41,46 @@ def get_stock_data(symbol):
     return stock_data
 
 def return_sentiment_by_month(company):
-    sentiment_df = pd.read_csv(f'../data/{company}_sentiment_analysis.csv', index_col='date', infer_datetime_format=True, parse_dates=True)
+    sentiment_df = pd.read_csv(f'var/www/FlaskApp/data/{company}_sentiment_analysis.csv', index_col='date', infer_datetime_format=True, parse_dates=True)
     sentiment_df = sentiment_df.drop(['positive','negative','neutral'], axis=1)
     sentiment_df = sentiment_df.resample('M').mean()
     return sentiment_df
 
 def return_news_by_month(company):
-    news_df = pd.read_csv(f'../data/{company}_year.csv', index_col='date', infer_datetime_format=True, parse_dates=True)
+    news_df = pd.read_csv(f'var/www/FlaskApp/data/{company}_year.csv', index_col='date', infer_datetime_format=True, parse_dates=True)
     news_df = news_df.groupby(news_df.index.month).count()
     return news_df
 
+def return_classification_report(company):
+    df = pd.read_csv(f'var/www/FlaskApp/data/{company}_sentiment_analysis.csv', index_col="date", infer_datetime_format=True, parse_dates=True)
+    df = df.resample('D').mean()
+    df2 = pd.read_csv(f'var/www/FlaskApp/data/{company}_prices.csv', index_col='t', infer_datetime_format=True, parse_dates=True)
+    df2["c"] = df2["c"].pct_change()
+    df2 = df2.dropna()
+    df2["c"][df2["c"] < 0] = 0
+    df2["c"][df2["c"] > 0] = 1
+    df = pd.concat([df,df2], axis =1)
+    df = df.dropna()
+    app.logger.info(df)
+    X = df.drop(["c"], axis=1)
+    y = df["c"]
+    x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state = 50)
+    model = LinearDiscriminantAnalysis().fit(x_train, y_train)    
+    predictions = model.predict(x_test)
+
+    c_score = classification_report(y_test, predictions, output_dict=True)
+#    report = pd.DataFrame(c_score).transpose()
+    report = c_score
+    return report
+
+
 # linear regression function
 def return_linear_regression(symbol):
-    file_path = f'../data/{symbol}_sentiment_analysis.csv'
+    file_path = f'var/www/FlaskApp/data/{symbol}_sentiment_analysis.csv'
     df = pd.read_csv(file_path, parse_dates=True, infer_datetime_format=True, index_col='date')
     df = df.resample('D').mean()
 
-    df2 = pd.read_csv(f'data/{symbol}_prices.csv', index_col="t", infer_datetime_format=True, parse_dates=True)
+    df2 = pd.read_csv(f'var/www/FlaskApp/data/{symbol}_prices.csv', index_col="t", infer_datetime_format=True, parse_dates=True)
 
     df = pd.concat([df,df2], axis=1)
     df = df.dropna()
@@ -84,7 +115,9 @@ def up_or_down(value):
 def get_news(from_date):
     # modified get news function which returns dataframe with title, 
     analyzer = SentimentIntensityAnalyzer()
-    news_key = os.getenv("news_api")
+    # news_key = os.getenv("news_api")
+    news_key = "ad9b31ff022242e9932a6a643dd3897b"
+
     company_news = requests.get(f"http://newsapi.org/v2/everything?q=(pfizer)OR(moderna)&from={from_date}&to={from_date}&language=en&sortBy=publishedAt&apiKey={news_key}").json()
     company_news = pd.DataFrame(data=company_news)
     company_df = pd.DataFrame.from_dict(company_news["articles"])
@@ -269,6 +302,8 @@ def index():
     pfizer_monthly_news = return_news_by_month('pfizer')
     moderna_monthly_news = return_news_by_month('moderna')
 
+    pfizer_classification_report = return_classification_report('pfizer')
+    moderna_classification_report = return_classification_report('moderna')
 
     # plot styling
     plot_bg = "#121729"
@@ -308,7 +343,12 @@ def index():
                 title='Pfizer News Per Month',
                 plot_bgcolor=plot_bg,
                 paper_bgcolor=plot_bg,
-                font=dict(color=primary_text)
+                font=dict(color=primary_text),
+                xaxis=dict(
+                    tickmode = 'array',
+                    tickvals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+                    ticktext = ['November 2019', 'December', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October 2020']
+                )
             )
         ),
 
@@ -355,7 +395,9 @@ def index():
                            moderna_news_x=moderna_monthly_news.index.astype(str).tolist(),
                            moderna_news_y=moderna_monthly_news.text.tolist(),
                            moderna_mse=moderna_mse,
-                           moderna_r2=moderna_r2
+                           moderna_r2=moderna_r2,
+                           pfizer_classification_report=pfizer_classification_report,
+                           moderna_classification_report=moderna_classification_report
                            ) 
 
 
@@ -363,3 +405,8 @@ def index():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+# def create_app(config_filename):
+#     app = Flask(__name__)
+
+#     return app

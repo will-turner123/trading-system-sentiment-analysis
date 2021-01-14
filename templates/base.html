@@ -209,7 +209,7 @@
                 <div class="row no-gutters">
                     <div class="col">
                         <div class="card dark-card">
-                            <h4 class="text-center mt-2">Linear Regression Models</h4>
+                            <h4 class="text-center mt-3 mb-2">Linear Regression Models</h4>
                             <table class="table table-dark">
                                 <thead>
                                     <th scope="col">Symbol</th>
@@ -228,6 +228,96 @@
                                         <td>{{moderna_r2|safe}}</td>
                                     </tr>
                                 </tbody>
+                            </table>
+                            <h4 class="text-center mt-2 mb-2" title="Classifies price as going up or down based on sentiment">Pfizer Classification Models</h4>
+                            <table class="table table-dark table-striped table-hover">
+                                <thead>
+                                    <th scope="col"></th>
+                                    <th scope="col">Precision</th>
+                                    <th scope="col">Recall</th>
+                                    <th scope="col">F1 Score</th>
+                                    <th scope="col">Support</th>
+                                </thead>
+                                <tr>
+                                    <td>0.0</td>
+                                    <td>{{pfizer_classification_report['0.0']['precision']|safe}}</td>
+                                    <td>{{pfizer_classification_report['0.0']['recall']|safe}}</td>
+                                    <td>{{pfizer_classification_report['0.0']['f1-score']|safe}}</td>
+                                    <td>{{pfizer_classification_report['0.0']['support']|safe}}</td>
+                                </tr>
+                                <tr>
+                                    <td>1.0</td>
+                                    <td>{{pfizer_classification_report['1.0']['precision']|safe}}</td>
+                                    <td>{{pfizer_classification_report['1.0']['recall']|safe}}</td>
+                                    <td>{{pfizer_classification_report['1.0']['f1-score']|safe}}</td>
+                                    <td>{{pfizer_classification_report['1.0']['support']|safe}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Accuracy</td>
+                                    <td>{{pfizer_classification_report['accuracy']|safe}}</td>
+                                    <td>{{pfizer_classification_report['accuracy']|safe}}</td>
+                                    <td>{{pfizer_classification_report['accuracy']|safe}}</td>
+                                    <td>{{pfizer_classification_report['accuracy']|safe}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Macro Avg</td>
+                                    <td>{{pfizer_classification_report['macro avg']['precision']|safe}}</td>
+                                    <td>{{pfizer_classification_report['macro avg']['recall']|safe}}</td>
+                                    <td>{{pfizer_classification_report['macro avg']['f1-score']|safe}}</td>
+                                    <td>{{pfizer_classification_report['macro avg']['support']|safe}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Weighted Avg</td>
+                                    <td>{{pfizer_classification_report['weighted avg']['precision']|safe}}</td>
+                                    <td>{{pfizer_classification_report['weighted avg']['recall']|safe}}</td>
+                                    <td>{{pfizer_classification_report['weighted avg']['f1-score']|safe}}</td>
+                                    <td>{{pfizer_classification_report['weighted avg']['support']|safe}}</td>
+                                </tr>
+                            </table>
+                            <h4 class="text-center mt-2 mb-2" title="Classifies price as going up or down based on sentiment">Moderna Classification Models</h4>
+                            <table class="table table-dark table-striped table-hover">
+                                <thead>
+                                    <th scope="col"></th>
+                                    <th scope="col">Precision</th>
+                                    <th scope="col">Recall</th>
+                                    <th scope="col">F1 Score</th>
+                                    <th scope="col">Support</th>
+                                </thead>
+                                <tr>
+                                    <td>0.0</td>
+                                    <td>{{moderna_classification_report['0.0']['precision']|safe}}</td>
+                                    <td>{{moderna_classification_report['0.0']['recall']|safe}}</td>
+                                    <td>{{moderna_classification_report['0.0']['f1-score']|safe}}</td>
+                                    <td>{{moderna_classification_report['0.0']['support']|safe}}</td>
+                                </tr>
+                                <tr>
+                                    <td>1.0</td>
+                                    <td>{{moderna_classification_report['1.0']['precision']|safe}}</td>
+                                    <td>{{moderna_classification_report['1.0']['recall']|safe}}</td>
+                                    <td>{{moderna_classification_report['1.0']['f1-score']|safe}}</td>
+                                    <td>{{moderna_classification_report['1.0']['support']|safe}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Accuracy</td>
+                                    <td>{{moderna_classification_report['accuracy']|safe}}</td>
+                                    <td>{{moderna_classification_report['accuracy']|safe}}</td>
+                                    <td>{{moderna_classification_report['accuracy']|safe}}</td>
+                                    <td>{{moderna_classification_report['accuracy']|safe}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Macro Avg</td>
+                                    <td>{{moderna_classification_report['macro avg']['precision']|safe}}</td>
+                                    <td>{{moderna_classification_report['macro avg']['recall']|safe}}</td>
+                                    <td>{{moderna_classification_report['macro avg']['f1-score']|safe}}</td>
+                                    <td>{{moderna_classification_report['macro avg']['support']|safe}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Weighted Avg</td>
+                                    <td>{{moderna_classification_report['weighted avg']['precision']|safe}}</td>
+                                    <td>{{moderna_classification_report['weighted avg']['recall']|safe}}</td>
+                                    <td>{{moderna_classification_report['weighted avg']['f1-score']|safe}}</td>
+                                    <td>{{moderna_classification_report['weighted avg']['support']|safe}}</td>
+                                </tr>
                             </table>
                         </div>
                     </div>
@@ -298,6 +388,12 @@
                 paper_bgcolor: "#121729",
                 plot_bgcolor: "#121729",
                 font: {color: "#FFFFFF"},
+                xaxis: {
+                    tickmode: 'array',
+                    tickvals: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                    ticktext: ['November 2019', 'December', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October 2020']
+                }
+
             }
             function plot_moderna_news(){
                 Plotly.newPlot('moderna_news', [moderna_news_trace], moderna_news_layout)
