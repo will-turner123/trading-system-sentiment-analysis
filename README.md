@@ -15,4 +15,4 @@ For linear regression model, We used a years worth of data to train our model. W
 ## Final Analysis
 Our primary goal was to create a model to make a predictions for stock price(Pfizer and Moderna). We used trained model on live data and news sentiments and stock price to make the predications. We were successful to create that program to achieve our goal. 
 
-View a live demo at [http://trading-sentiment.ml](http://trading-sentiment.ml)
+View a live demo at [http://31.220.20.97:5000](http://31.220.20.97:5000)
